@@ -1,0 +1,45 @@
+apiVersion: karpenter.sh/v1alpha5
+kind: Provisioner
+metadata:
+  name: gameserver
+spec:
+  consolidation:
+    enabled: true
+  labels:
+    intent: gs
+  requirements:
+    - key: karpenter.sh/capacity-type
+      operator: In
+      values: ["spot", "on-demand"]
+    - key: karpenter.k8s.aws/instance-size
+      operator: NotIn
+      values: [nano, micro, small, medium]
+    - key: "kubernetes.io/arch"
+      operator: In
+      values: ["arm64", "amd64"]
+  taints:
+    - key: gameserver
+      effect: NoSchedule
+  limits:
+    resources:
+      cpu: 25
+      memory: 100Gi
+  # ttlSecondsAfterEmpty: 30
+  ttlSecondsUntilExpired: 2592000
+  providerRef:
+    name: default
+---
+apiVersion: karpenter.k8s.aws/v1alpha1
+kind: AWSNodeTemplate
+metadata:
+  name: gameserver
+spec:
+  subnetSelector:
+    karpenter.sh/discovery: kcduk-gameserver-eks
+    kubernetes.io/role/elb: '1'
+  securityGroupSelector:
+    karpenter.sh/discovery: kcduk-gameserver-eks
+  tags:
+    NodeType: "gameserver"
+    IntentLabel: "gs"
+    Name: "kcduk-gameserver-eks-karpenter-gs-node"

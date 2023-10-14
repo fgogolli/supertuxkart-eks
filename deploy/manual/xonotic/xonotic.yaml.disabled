@@ -1,0 +1,47 @@
+apiVersion: agones.dev/v1
+kind: Fleet
+metadata:
+  name: xonotic
+  namespace: xonotic
+spec:
+  replicas: 2
+  strategy:
+    type: Recreate
+  template:
+    spec:
+      ports:
+        - name: default
+          containerPort: 26000
+      health:
+        initialDelaySeconds: 30
+        periodSeconds: 60
+      template:
+        spec:
+          containers:
+            - name: xonotic
+              image: us-docker.pkg.dev/agones-images/examples/xonotic-example:1.2
+              env:
+              - name: ENABLE_PLAYER_TRACKING
+                value: 'true'
+          nodeSelector:
+            intent: gs
+            kubernetes.io/arch: amd64
+            karpenter.sh/capacity-type: spot
+          tolerations:
+          - key: gameserver
+            operator: "Exists"
+            effect: "NoSchedule"
+---
+apiVersion: autoscaling.agones.dev/v1
+kind: FleetAutoscaler
+metadata:
+  name: xonotic-autoscaler
+spec:
+  fleetName: xonotic
+  policy:
+    type: Buffer
+    buffer:
+      bufferSize: 2
+      minReplicas: 0
+      maxReplicas: 10
+---
