@@ -1,0 +1,10 @@
+apiVersion: allocation.agones.dev/v1
+kind: GameServerAllocation
+metadata:
+  name: stk-allocation
+  namespace: default
+spec:
+  selectors:
+    - matchLabels:
+        agones.dev/fleet: stk
+---

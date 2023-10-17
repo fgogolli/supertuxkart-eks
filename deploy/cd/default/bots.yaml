@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bots
+  namespace: default
+  labels:
+    app: bots
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bots
+  template:
+    metadata:
+      labels:
+        app: bots
+    spec:
+      containers:
+      - name: bots
+        image: 686521096028.dkr.ecr.eu-west-1.amazonaws.com/stk:0.1-multi
+        env:
+        - name: STK_SERVER_ADDRESS
+          value: "stk.flamur.dev"
+        - name: STK_SERVER_PORT
+          value: "7989"
+        - name: NETWORK_AI_COUNT
+          value: "1"
+        command: ["/usr/games/supertuxkart"]
+        args: ["--connect-now=$(STK_SERVER_ADDRESS):$(STK_SERVER_PORT)", "--network-ai=$(NETWORK_AI_COUNT)", "--no-graphics", "--server-password="]
+      nodeSelector:
+        intent: gs
+        # kubernetes.io/arch: arm64
+        karpenter.sh/capacity-type: spot
+      tolerations:
+      - key: gameserver
+        operator: "Exists"
+        effect: "NoSchedule"

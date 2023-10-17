@@ -1,0 +1,27 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: stk
+  namespace: stk
+spec:
+  interval: 1h
+  image: 686521096028.dkr.ecr.eu-west-1.amazonaws.com/stk
+  provider: aws
+  # accessFrom:
+  #   namespaceSelectors:
+  #     - matchLabels:
+  #         kubernetes.io/metadata.name: flux-system
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: stk
+  namespace: stk #flux-system
+spec:
+  imageRepositoryRef:
+    name: stk
+    namespace: stk
+  policy:
+    semver:
+      range: 0.x-multi
+---

@@ -1,0 +1,10 @@
+apiVersion: allocation.agones.dev/v1
+kind: GameServerAllocation
+metadata:
+  name: xonotic-allocation
+  namespace: xonotic
+spec:
+  selectors:
+    - matchLabels:
+        agones.dev/fleet: xonotic
+---
